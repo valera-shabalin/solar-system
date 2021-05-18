@@ -21,6 +21,9 @@ module.exports = {
             '@': path.resolve(__dirname, 'src')
         }
     },
+    devServer: {
+        port: 4200
+    },
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Планетарий',
