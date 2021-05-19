@@ -1,18 +1,21 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three-orbitcontrols-ts';
+
 
 import '@/styles/style.css';
 
 import t_sun from '@/assets/img/t_sun.jpg';
-import t_earth from '@/assets/img/t_earth.jpg';
 import t_mercury from '@/assets/img/t_mercury.jpg';
 import t_venus from '@/assets/img/t_venus.jpg';
+import t_earth from '@/assets/img/t_earth.jpg';
+import t_mars from '@/assets/img/t_mars.jpg';
 
 /* Factory function for create planets */
 function Planet(options) {
     let name = options.name || 'Неизвестная планета',
         texture = options.texture,
-        distance = options.distance || 10,
+        distance = options.distance || 0,
         radius = options.radius,
         t = 0;
 
@@ -21,6 +24,7 @@ function Planet(options) {
         map: loaderTexture.load(texture)
     });
     const mesh = new THREE.Mesh(planetGeometry, planetMaterial);
+    mesh.position.set(DEFAULT_DISTANCE * distance, 0, DEFAULT_DISTANCE * distance);
 
     function updatePosition() {
         t += Math.PI / 180;
@@ -51,6 +55,65 @@ function Planet(options) {
         setName, getName,
         setDistance, getDistance
     }
+}
+
+/* Function for add planets */
+function addPlanets() {
+    /* Create Sun */
+    planets.push(
+        new Planet({
+            name: 'Солнце',
+            radius: 20,
+            texture: t_sun
+        })
+    )
+    scene.add(planets[0].mesh);
+
+    /* Create Mercury */
+    planets.push(
+        new Planet({
+            name: 'Меркурий',
+            radius: 0.38,
+            texture: t_mercury,
+            distance: 0.3871
+        })
+    );
+    scene.add(planets[1].mesh);
+
+    /* Create Venus */
+    planets.push(
+        new Planet({
+            name: 'Меркурий',
+            radius: 0.95,
+            texture: t_venus,
+            distance: 0.7231
+        })
+    );
+    scene.add(planets[2].mesh);
+
+    /* Create Earth */
+    planets.push(
+        new Planet({
+            name: 'Земля',
+            radius: 1,
+            texture: t_earth,
+            distance: 1
+        })
+    );
+    scene.add(planets[3].mesh);
+
+    /* Create Mars */
+    planets.push(
+        new Planet({
+            name: 'Марс',
+            radius: 0.53,
+            texture: t_mars,
+            distance: 1.5236
+        })
+    );
+    scene.add(planets[4].mesh);
+
+    return true
 }
 
 function init() {
@@ -90,48 +153,7 @@ function init() {
     /* Create a loader for texture */
     loaderTexture = new THREE.TextureLoader();
 
-    /* Create Sun */
-    planets.push(
-        new Planet({
-            name: 'Солнце',
-            radius: 20,
-            texture: t_sun
-        })
-    )
-    scene.add(planets[0].mesh);
-
-    /* Create Earth */
-    planets.push(
-        new Planet({
-            name: 'Земля',
-            radius: 1,
-            texture: t_earth,
-            distance: 1
-        })
-    );
-    scene.add(planets[1].mesh);
-
-    /* Create Mercury */
-    planets.push(
-        new Planet({
-            name: 'Меркурий',
-            radius: 0.38,
-            texture: t_mercury,
-            distance: 0.3871
-        })
-    );
-    scene.add(planets[2].mesh);
-
-    /* Create Venus */
-    planets.push(
-        new Planet({
-            name: 'Меркурий',
-            radius: 0.95,
-            texture: t_venus,
-            distance:0.7231
-        })
-    );
-    scene.add(planets[3].mesh);
+    addPlanets();
 
     window.addEventListener('resize', onWindowResize);
 }
@@ -146,9 +168,9 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
 
-    planets[1].updatePosition();
-    planets[2].updatePosition();
-    planets[3].updatePosition();
+    for (let i = 1; i < planets.length; i++) {
+        planets[i].updatePosition()
+    }
 
     controls.update();
 
@@ -162,10 +184,7 @@ let camera, scene, renderer;
 let axes, controls, pointLight, light, loaderTexture;
 
 /* Planets */
-let sun, earth, mercury, venus;
 let planets = [];
-
-let t = 0;
 
 const DEFAULT_SIZE = 1,
       DEFAULT_DISTANCE = 100;
