@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three-orbitcontrols-ts';
 
 
@@ -33,6 +32,10 @@ function Planet(options) {
         mesh.position.z = Math.cos(t * 0.1) * DEFAULT_DISTANCE * distance;
     }
 
+    function updateRotation() {
+        mesh.rotation.y += Math.PI * 2 / 86344 * 30;
+    }
+
     function setDistance(value) {
         distance = value;
     }
@@ -51,7 +54,7 @@ function Planet(options) {
 
     return {
         mesh,
-        updatePosition,
+        updatePosition, updateRotation,
         setName, getName,
         setDistance, getDistance
     }
@@ -138,7 +141,7 @@ function init() {
 
     /* Create and add axes */
     axes = new THREE.AxesHelper(5000);
-    scene.add(axes);
+    //scene.add(axes);
 
     /* Create a camera */
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 30000);
@@ -169,7 +172,8 @@ function animate() {
     requestAnimationFrame(animate);
 
     for (let i = 1; i < planets.length; i++) {
-        planets[i].updatePosition()
+        planets[i].updatePosition();
+        planets[i].updateRotation();
     }
 
     controls.update();
