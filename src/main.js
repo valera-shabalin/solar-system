@@ -8,6 +8,51 @@ import t_earth from '@/assets/img/t_earth.jpg';
 import t_mercury from '@/assets/img/t_mercury.jpg';
 import t_venus from '@/assets/img/t_venus.jpg';
 
+/* Factory function for create planets */
+function Planet(options) {
+    let name = options.name || 'Неизвестная планета',
+        texture = options.texture,
+        distance = options.distance || 10,
+        radius = options.radius,
+        t = 0;
+
+    const planetGeometry = new THREE.SphereGeometry(DEFAULT_SIZE * radius, 16, 16);
+    const planetMaterial = new THREE.MeshPhongMaterial({
+        map: loaderTexture.load(texture)
+    });
+    const mesh = new THREE.Mesh(planetGeometry, planetMaterial);
+
+    function updatePosition() {
+        t += Math.PI / 180;
+
+        mesh.position.x = Math.sin(t * 0.1) * DEFAULT_DISTANCE * distance;
+        mesh.position.z = Math.cos(t * 0.1) * DEFAULT_DISTANCE * distance;
+    }
+
+    function setDistance(value) {
+        distance = value;
+    }
+
+    function getDistance() {
+        return distance;
+    }
+
+    function setName(value) {
+        name = value;
+    }
+
+    function getName() {
+        return name;
+    }
+
+    return {
+        mesh,
+        updatePosition,
+        setName, getName,
+        setDistance, getDistance
+    }
+}
+
 function init() {
     const container = document.querySelector('#container');
 
@@ -34,59 +79,59 @@ function init() {
 
     /* Create a camera */
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 30000);
-    camera.position.set(10, 10, EARTH_DISTANCE + 20);
+    camera.position.set(10, 10, DEFAULT_DISTANCE + 20);
 
     /* Create and add OrbitControls */
     controls = new OrbitControls(camera, renderer.domElement);
-
     controls.enableZoom = true;
     controls.minDistance = 20;
     controls.maxDistance = 2000;
 
-    const textureLoader = new THREE.TextureLoader();
+    /* Create a loader for texture */
+    loaderTexture = new THREE.TextureLoader();
 
     /* Create Sun */
-    const sunGeometry = new THREE.SphereGeometry(EARTH_SIZE * 20, 16, 16 );
-    const sunMaterial = new THREE.MeshPhongMaterial({
-        specular: 0x333333,
-        shininess: 5,
-        map: textureLoader.load(t_sun),
-    });
-    sun = new THREE.Mesh(sunGeometry, sunMaterial);
-    scene.add(sun);
+    planets.push(
+        new Planet({
+            name: 'Солнце',
+            radius: 20,
+            texture: t_sun
+        })
+    )
+    scene.add(planets[0].mesh);
 
     /* Create Earth */
-    const earthGeometry = new THREE.SphereGeometry(EARTH_SIZE, 16, 16 );
-    const earthMaterial = new THREE.MeshPhongMaterial({
-        specular: 0x333333,
-        shininess: 5,
-        map: textureLoader.load(t_earth),
-    });
-    earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    earth.position.set(EARTH_DISTANCE, 0, 0);
-    scene.add(earth);
+    planets.push(
+        new Planet({
+            name: 'Земля',
+            radius: 1,
+            texture: t_earth,
+            distance: 1
+        })
+    );
+    scene.add(planets[1].mesh);
 
     /* Create Mercury */
-    const mercuryGeometry = new THREE.SphereGeometry(EARTH_SIZE * 0.38, 16, 16 );
-    const mercuryMaterial = new THREE.MeshPhongMaterial({
-        specular: 0x333333,
-        shininess: 5,
-        map: textureLoader.load(t_mercury),
-    });
-    mercury = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
-    mercury.position.set(EARTH_DISTANCE * 0.3871, 0, 0);
-    scene.add(mercury);
+    planets.push(
+        new Planet({
+            name: 'Меркурий',
+            radius: 0.38,
+            texture: t_mercury,
+            distance: 0.3871
+        })
+    );
+    scene.add(planets[2].mesh);
 
     /* Create Venus */
-    const venusGeometry = new THREE.SphereGeometry(EARTH_SIZE * 0.95, 16, 16 );
-    const venusMaterial = new THREE.MeshPhongMaterial({
-        specular: 0x333333,
-        shininess: 5,
-        map: textureLoader.load(t_venus),
-    });
-    venus = new THREE.Mesh(venusGeometry, venusMaterial);
-    venus.position.set(EARTH_DISTANCE * 0.7231, 0, 0);
-    scene.add(venus);
+    planets.push(
+        new Planet({
+            name: 'Меркурий',
+            radius: 0.95,
+            texture: t_venus,
+            distance:0.7231
+        })
+    );
+    scene.add(planets[3].mesh);
 
     window.addEventListener('resize', onWindowResize);
 }
@@ -101,34 +146,29 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
 
-    t += Math.PI / 180;
-
-    earth.position.x = Math.sin(t * 0.1) * EARTH_DISTANCE;
-    earth.position.z = Math.cos(t * 0.1) * EARTH_DISTANCE - 10;
-
-    mercury.position.x = Math.sin(t * 0.1) * EARTH_DISTANCE * 0.38;
-    mercury.position.z = Math.cos(t * 0.1) * EARTH_DISTANCE * 0.38 - 5;
-
-    earth.rotation.y += 2 * Math.PI / 86164 * 20;
-    sun.rotation.y += 2 * Math.PI / 91368 * 20;
-
-    console.log(earth.rotation)
+    planets[1].updatePosition();
+    planets[2].updatePosition();
+    planets[3].updatePosition();
 
     controls.update();
 
     renderer.render(scene, camera);
 }
 
+/* Main scene variables */
 let camera, scene, renderer;
-let axes, controls;
 
-let pointLight, light;
+/* More set variables */
+let axes, controls, pointLight, light, loaderTexture;
 
+/* Planets */
 let sun, earth, mercury, venus;
+let planets = [];
 
 let t = 0;
 
-const EARTH_SIZE = 1, EARTH_DISTANCE = 100;
+const DEFAULT_SIZE = 1,
+      DEFAULT_DISTANCE = 100;
 
 init();
 animate();
