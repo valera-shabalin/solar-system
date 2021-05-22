@@ -1,15 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three-orbitcontrols-ts';
+import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
 
 import '@/styles/style.css';
 
 import data from '@/assets/json/data';
-
-/*import t_sun from '@/assets/img/t_sun.jpg';
-import t_mercury from '@/assets/img/t_mercury.jpg';
-import t_venus from '@/assets/img/t_venus.jpg';
-import t_earth from '@/assets/img/t_earth.jpg';
-import t_mars from '@/assets/img/t_mars.jpg';*/
 
 /* Factory function for create planets */
 function Planet(options) {
@@ -22,11 +17,18 @@ function Planet(options) {
 
     const planetGeometry = new THREE.SphereGeometry(DEFAULT_SIZE * radius, 16, 16);
     const planetMaterial = new THREE.MeshPhongMaterial({
-        map: loaderTexture.load(texture),
+        map: textureLoader.load(texture),
         flatShading: true
     });
     const mesh = new THREE.Mesh(planetGeometry, planetMaterial);
     mesh.position.set(DEFAULT_DISTANCE * distance, 0, DEFAULT_DISTANCE * distance);
+
+    const div = document.createElement( 'div' );
+    div.className = 'label';
+    div.textContent = name;
+    div.style.marginTop = '-1em';
+    const label = new CSS2DObject(div);
+    label.position.set(0, radius, 0);
 
     function updatePosition() {
         t += Math.PI / 180;
@@ -40,7 +42,7 @@ function Planet(options) {
     }
 
     return {
-        mesh,
+        mesh, label,
         updatePosition,
         updateRotation,
     }
@@ -59,12 +61,13 @@ async function addPlanets() {
         }));
 
         scene.add(planets[i].mesh);
+        planets[i].mesh.add(planets[i].label);
     }
 }
 
 function addStars() {
     const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.ParticleBasicMaterial({
+    const starsMaterial = new THREE.PointsMaterial({
         color: 0xE6E6FA
     });
 
@@ -123,19 +126,21 @@ async function init() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 30000);
     camera.position.set(10, 10, DEFAULT_DISTANCE + 20);
 
+    /* Init LabelRenderer */
+    labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    document.body.appendChild(labelRenderer.domElement);
+
     /* Create and add OrbitControls */
-    controls = new OrbitControls(camera, renderer.domElement);
+    controls = new OrbitControls(camera, labelRenderer.domElement);
     controls.enableZoom = true;
     controls.minDistance = 20;
     controls.maxDistance = 2000;
 
-    /* Create a loader for texture */
-    loaderTexture = new THREE.TextureLoader();
-
     await addPlanets();
     addStars();
-
-    window.addEventListener('resize', onWindowResize);
 }
 
 function onWindowResize() {
@@ -143,26 +148,29 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate() {
     requestAnimationFrame(animate);
+    controls.update();
 
     for (let i = 1; i < planets.length; i++) {
         planets[i].updatePosition();
         planets[i].updateRotation();
     }
 
-    controls.update();
-
     renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
 }
 
 /* Main scene variables */
 let camera, scene, renderer;
 
+const textureLoader = new THREE.TextureLoader();
+
 /* More set variables */
-let axes, controls, pointLight, light, loaderTexture;
+let axes, controls, pointLight, light, labelRenderer;
 
 /* Planets */
 let planets = [];
@@ -172,6 +180,7 @@ const DEFAULT_SIZE = 1,
 
 init();
 animate();
+
 
 
 
