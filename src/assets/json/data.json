@@ -1,0 +1,58 @@
+{
+  "planets": [
+    {
+      "name": "Солнце",
+      "radius": 20,
+      "distance": 0,
+      "texture": "t_sun"
+    },
+    {
+      "name": "Меркурий",
+      "radius": 0.38,
+      "distance": 0.3871,
+      "texture": "t_mercury"
+    },
+    {
+      "name": "Венера",
+      "radius": 0.95,
+      "distance": 0.7231,
+      "texture": "t_venus"
+    },
+    {
+      "name": "Земля",
+      "radius": 1,
+      "distance": 1,
+      "texture": "t_earth"
+    },
+    {
+      "name": "Марс",
+      "radius": 0.53,
+      "distance": 1.5236,
+      "texture": "t_mars"
+    },
+    {
+      "name": "Юпитер",
+      "radius": 10.120,
+      "distance": 5.2028,
+      "texture": "t_jupiter"
+    },
+    {
+      "name": "Сатурн",
+      "radius": 9.45,
+      "distance": 9.5549,
+      "texture": "t_saturn"
+    },
+    {
+      "name": "Уран",
+      "radius": 4,
+      "distance": 19.1913,
+      "texture": "t_uranus"
+    },
+    {
+      "name": "Нептун",
+      "radius": 3.88,
+      "distance": 30.1093,
+      "texture": "t_neptune"
+    }
+  ]
+}

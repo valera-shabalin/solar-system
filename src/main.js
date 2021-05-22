@@ -3,11 +3,13 @@ import { OrbitControls } from 'three-orbitcontrols-ts';
 
 import '@/styles/style.css';
 
-import t_sun from '@/assets/img/t_sun.jpg';
+import data from '@/assets/json/data';
+
+/*import t_sun from '@/assets/img/t_sun.jpg';
 import t_mercury from '@/assets/img/t_mercury.jpg';
 import t_venus from '@/assets/img/t_venus.jpg';
 import t_earth from '@/assets/img/t_earth.jpg';
-import t_mars from '@/assets/img/t_mars.jpg';
+import t_mars from '@/assets/img/t_mars.jpg';*/
 
 /* Factory function for create planets */
 function Planet(options) {
@@ -45,63 +47,19 @@ function Planet(options) {
 }
 
 /* Function for add planets */
-function addPlanets() {
-    /* Create Sun */
-    planets.push(
-        new Planet({
-            name: 'Солнце',
-            radius: 20,
-            texture: t_sun
-        })
-    )
-    scene.add(planets[0].mesh);
+async function addPlanets() {
+    for (let i = 0; i < data.planets.length; i++) {
+        const texture = await import(`@/assets/img/${data.planets[i].texture}.jpg`);
+        
+        planets.push(new Planet({
+            name: data.planets[i].name,
+            radius: data.planets[i].radius,
+            distance: data.planets[i].distance,
+            texture: texture.default
+        }));
 
-    /* Create Mercury */
-    planets.push(
-        new Planet({
-            name: 'Меркурий',
-            radius: 0.38,
-            texture: t_mercury,
-            distance: 0.3871
-        })
-    );
-    scene.add(planets[1].mesh);
-
-    /* Create Venus */
-    planets.push(
-        new Planet({
-            name: 'Меркурий',
-            radius: 0.95,
-            texture: t_venus,
-            distance: 0.7231
-        })
-    );
-    scene.add(planets[2].mesh);
-
-    /* Create Earth */
-    planets.push(
-        new Planet({
-            name: 'Земля',
-            radius: 1,
-            texture: t_earth,
-            distance: 1,
-            rotationTime: 86344
-        })
-    );
-    scene.add(planets[3].mesh);
-
-    /* Create Mars */
-    planets.push(
-        new Planet({
-            name: 'Марс',
-            radius: 0.53,
-            texture: t_mars,
-            distance: 1.5236
-        })
-    );
-    scene.add(planets[4].mesh);
-
-    return true
+        scene.add(planets[i].mesh);
+    }
 }
 
 function addStars() {
@@ -117,9 +75,9 @@ function addStars() {
     const color = new THREE.Color();
 
     for (let i = 0; i < 5000; i ++) {
-        positions.push((Math.random() * 2 - 1 ) * 10000);
-        positions.push((Math.random() * 2 - 1 ) * 10000);
-        positions.push((Math.random() * 2 - 1 ) * 10000);
+        positions.push((Math.random() * 2 - 1 ) * 30000);
+        positions.push((Math.random() * 2 - 1 ) * 30000);
+        positions.push((Math.random() * 2 - 1 ) * 30000);
 
         color.setHSL(i / 100, 1.0, 0.5);
 
@@ -137,7 +95,7 @@ function addStars() {
     scene.add(stars);
 }
 
-function init() {
+async function init() {
     const container = document.querySelector('#container');
 
     /* Create and add a renderer */
@@ -174,7 +132,7 @@ function init() {
     /* Create a loader for texture */
     loaderTexture = new THREE.TextureLoader();
 
-    addPlanets();
+    await addPlanets();
     addStars();
 
     window.addEventListener('resize', onWindowResize);
